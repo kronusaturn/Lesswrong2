@@ -65,10 +65,21 @@ class CommentsListSection extends Component {
     </div>
   )
 
+  currentUserCanComment = () => {
+    return this.props.currentUser && !this.props.post.bannedUserIds || this.props.post.bannedUserIds.includes(this.props.currentUser._id)
+  }
+
+  renderBannedMessage = () => {
+    return <div className="i18n-message author_has_banned_you"><FormattedMessage id="comments.author_has_banned_you"/></div>
+  }
+
   render() {
     const {currentUser, comments, postId, router} = this.props;
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
     const currentLocation = router.location;
+
+    // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
+
     return (
       <div className="posts-comments-thread">
         { this.props.totalComments ? this.renderTitleComponent() : null }

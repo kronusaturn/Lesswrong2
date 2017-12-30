@@ -1,5 +1,10 @@
 import Users from "meteor/vulcan:users";
 
+const moderationGroup = {
+  order:60,
+  name: "moderation",
+  label: "Moderation",
+}
 
 Users.addField([
   /**
@@ -63,6 +68,64 @@ Users.addField([
     fieldName: 'bio',
     fieldSchema: {
       order: 40,
+    }
+  },
+
+  {
+    fieldName: 'moderationPolicy',
+    fieldSchema: {
+      type: String,
+      optional: true,
+      control: "select",
+      group: moderationGroup,
+      label: "Policy",
+      viewableBy: ['guests'],
+      editableBy: ['trustLevel1'],
+      insertableBy: ['trustLevel1'],
+      blackbox: true,
+      order: 55,
+      form: {
+        options: function () { // options for the select form control
+          return [
+            {value: 1, label: "Easy Going - I just delete obvious spam and trolling."},
+            {value: 2, label: "Norm Enforcing - I try to enforce particular rules (see below)"},
+            {value: 3, label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive"},
+          ];
+        }
+      },
+    }
+  },
+
+  {
+    fieldName: 'moderationGuidelines',
+    fieldSchema: {
+      type: Object,
+      optional: true,
+      group: moderationGroup,
+      label: "Special Guidelines",
+      placeholder: "Any particular norms or guidelines that you like to cultivate in your comment sections? (If you are specific, LW moderates can help enforce this)",
+      viewableBy: ['guests'],
+      editableBy: ['trustLevel1'],
+      insertableBy: ['trustLevel1'],
+      control: 'textarea',
+      blackbox: true,
+      order: 55,
+    }
+  },
+
+  {
+    fieldName: 'moderatorAssistance',
+    fieldSchema: {
+      type: Boolean,
+      optional: true,
+      group: moderationGroup,
+      label: "I'm happy for LW site moderators to help enforce my policy",
+      viewableBy: ['guests'],
+      editableBy: ['trustLevel1'],
+      insertableBy: ['trustLevel1'],
+      control: 'checkbox',
+      blackbox: true,
+      order: 55,
     }
   },
 

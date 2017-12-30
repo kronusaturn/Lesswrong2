@@ -112,13 +112,14 @@ class CommentsItem extends PureComponent {
     const params = this.props.router.params;
     const commentLink = "/posts/"+params._id+"/"+params.slug+"/"+comment._id;
     const deletedClass = this.props.comment.deleted ? " deleted" : "";
+    const postEditMutation = this.props.postEditMutation;
+    const post = this.props.post
     const commentBody = this.props.collapsed ? "" : (
       <div>
         {this.state.showEdit ? this.renderEdit() : this.renderComment()}
         {this.renderCommentBottom()}
       </div>
     )
-
     return (
       <div className={"comments-item" + deletedClass} id={comment._id}>
         <div className="comments-item-body">
@@ -142,13 +143,19 @@ class CommentsItem extends PureComponent {
     const comment = this.props.comment;
     const currentUser = this.props.currentUser;
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
-    const showReplyButton = !comment.isDeleted && !!this.props.currentUser && (
-      !blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all'))
+    const bannedUserIds = this.props.post && _.clone(this.props.post.bannedUserIds) || []
+    const bannedReply = currentUser && bannedUserIds.includes(currentUser._id)
+    const showReplyButton = (
+      !comment.isDeleted &&
+      !!this.props.currentUser &&
+      (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
+      !bannedReply
+    )
 
     return (
       <div className="comments-item-bottom">
         { blockedReplies &&
-          <div className="comment-blocked-replies">
+          <div className="comment-blocked-replies">)
             A moderator has deactivated replies on this comment until {moment(new Date(comment.repliesBlockedUntil)).calendar()}
           </div>
         }
@@ -185,6 +192,12 @@ class CommentsItem extends PureComponent {
             { this.renderSubscribeMenuItem() }
             { this.renderReportMenuItem() }
             { this.renderStatsMenuItem() }
+            <Components.BanUserFromPostMenuItem
+              comment={this.props.comment}
+              post={this.props.post}
+              currentUser={this.props.currentUser}
+              postEditMutation={this.props.postEditMutation}
+            />
           </IconMenu>
           { this.state.showReport &&
             <Components.ReportForm
@@ -197,10 +210,10 @@ class CommentsItem extends PureComponent {
           }
           { this.state.showStats &&
             <Dialog title="Comment Stats"
-                    modal={false}
-                    actions={<FlatButton label="Close" primary={true} onTouchTap={ this.hideStats }/>}
-                    open={this.state.showStats}
-                    onRequestClose={this.hideStats}
+              modal={false}
+              actions={<FlatButton label="Close" primary={true} onTouchTap={ this.hideStats }/>}
+              open={this.state.showStats}
+              onRequestClose={this.hideStats}
             >
               <Components.CommentVotesInfo documentId={this.props.comment._id} />
             </Dialog>
