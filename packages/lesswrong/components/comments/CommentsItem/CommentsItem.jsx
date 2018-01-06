@@ -144,7 +144,11 @@ class CommentsItem extends PureComponent {
     const currentUser = this.props.currentUser;
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
     const bannedUserIds = this.props.post && _.clone(this.props.post.bannedUserIds) || []
-    const bannedReply = currentUser && bannedUserIds.includes(currentUser._id)
+    const bannedReply = (
+      currentUser &&
+      bannedUserIds.includes(currentUser._id) &&
+      !Users.canDo(currentUser,'posts.moderate.all')
+    )
     const showReplyButton = (
       !comment.isDeleted &&
       !!this.props.currentUser &&

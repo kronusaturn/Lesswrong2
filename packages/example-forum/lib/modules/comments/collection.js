@@ -19,8 +19,9 @@ import { Posts } from 'meteor/example-forum';
      if (!user || !document) return false;
      const post = Posts.findOne(document.postId)
      const bannedUserIds = post && post.bannedUserIds || []
+
      if (bannedUserIds && bannedUserIds.includes(user._id)) {
-       return false
+       return Users.canDo(user, `posts.moderate.all`)
      }
      return Users.canDo(user, 'comments.new')
    },

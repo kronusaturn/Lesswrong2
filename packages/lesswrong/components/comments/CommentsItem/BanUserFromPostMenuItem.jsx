@@ -4,11 +4,12 @@ import { MenuItem } from 'material-ui';
 import Users from 'meteor/vulcan:users';
 
 const currentUserCanBan = (currentUser, post) => {
-  return currentUser &&
+  return currentUser && post &&
     (
       Users.canDo(currentUser,"posts.moderate.all") ||
       (
         Users.canDo(currentUser,"posts.moderate.own") &&
+        Users.owns(currentUser, post) &&
         post.user.moderationPolicy
       )
     )
@@ -20,10 +21,11 @@ class BanUserFromPostMenuItem extends PureComponent {
     super(props);
   }
 
-  handleBanUserFromPost = () => {
+  handleBanUserFromPost = (event) => {
+    event.preventDefault();
     const commentUserId = this.props.comment.userId
     let bannedUserIds = _.clone(this.props.post.bannedUserIds) || []
-    if (bannedUserIds.includes(commentUserId)) {
+    if (!bannedUserIds.includes(commentUserId)) {
       bannedUserIds.push(commentUserId)
     }
     this.props.postEditMutation({
@@ -34,7 +36,7 @@ class BanUserFromPostMenuItem extends PureComponent {
   }
 
   render() {
-    if (this.props.comment && currentUserCanBan()) {
+    if (this.props.comment && currentUserCanBan(this.props.currentUser, this.props.post)) {
       return <MenuItem onTouchTap={ this.handleBanUserFromPost } primaryText="Ban User From Post" />
     } else {
       return null

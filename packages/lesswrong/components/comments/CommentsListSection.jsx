@@ -14,6 +14,19 @@ const datePickerTextFieldStyle = {
   }
 }
 
+const currentUserCanComment = (currentUser, post) => {
+  return currentUser && post &&
+    (
+      Users.canDo(currentUser,"posts.moderate.all") ||
+      (
+        Users.canDo(currentUser,"posts.moderate.own") &&
+        Users.owns(currentUser, post) &&
+        post.user.moderationPolicy
+      )
+    )
+}
+
+
 class CommentsListSection extends Component {
   constructor(props) {
     super(props);
@@ -74,7 +87,15 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const {currentUser, comments, postId, router} = this.props;
+    const {
+      currentUser,
+      comments,
+      postId,
+      post,
+      postEditMutation,
+      router
+    } = this.props;
+
     const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop', limit: 50};
     const currentLocation = router.location;
 
@@ -87,8 +108,10 @@ class CommentsListSection extends Component {
           currentUser={currentUser}
           comments={comments}
           highlightDate={this.state.highlightDate}
+          post={post}
+          postEditMutation={postEditMutation}
         />
-        {!!currentUser ?
+        {!!currentUser && this.currentUserCanComment() ?
           <div className="posts-comments-thread-new">
             <h4><FormattedMessage id="comments.new"/></h4>
             <Components.CommentsNewForm
