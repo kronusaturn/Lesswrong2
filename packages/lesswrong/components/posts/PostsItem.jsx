@@ -1,4 +1,4 @@
-import { Components, replaceComponent, withCurrentUser} from 'meteor/vulcan:core';
+import { Components, replaceComponent, withCurrentUser, withMutation} from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
@@ -23,6 +23,7 @@ class PostsItem extends PureComponent {
     super(props)
     this.state = {
       categoryHover: false,
+      showNewComments: false
     }
   }
   //
@@ -49,6 +50,9 @@ class PostsItem extends PureComponent {
     return (feed && feed.user ? <span className="post-feed-nickname"> {feed.nickname} </span> : null);
   }
 
+  toggleNewComments = () => {
+    this.setState({showNewComments: !this.state.showNewComments});
+  }
 
   getPostLink() {
     const {post, chapter} = this.props
@@ -70,7 +74,6 @@ class PostsItem extends PureComponent {
 
     let postClass = "posts-item";
     if (post.sticky) postClass += " posts-sticky";
-
     const commentCountIconStyle = {
       width: '30px',
       height: '30px',
@@ -89,60 +92,101 @@ class PostsItem extends PureComponent {
       zIndex: 2,
     }
 
+    const renderCommentsButton = () => {
+      return (
+        <Badge
+          className="posts-item-comment-count"
+          badgeContent={post.commentCount || 0}
+          secondary={true}
+          badgeStyle={commentCountBadgeStyle}
+
+        >
+          <IconButton
+            iconStyle={commentCountIconStyle}
+            tooltip={<div className={classNames("posts-item-tooltip-text", {"read": read, "newComments": newComments})}>
+              <span className="visit-indicator">{tooltipText1}</span><br/><span className="comment-indicator">{tooltipText2}</span>
+            </div>}
+          >
+            <CommentIcon />
+          </IconButton>
+        </Badge>
+      )
+    }
+
     let tooltipText1 = "last visit: ";
     let tooltipText2 = "last comment: ";
     tooltipText1 = tooltipText1 + (read ? moment(post.lastVisitedAt).fromNow() : "never");
     tooltipText2 = tooltipText2 + (post.lastCommentedAt ? moment(post.lastCommentedAt).fromNow() : "never");
 
+    if (this.state.showNewComments) {
+      paperStyle.borderLeft = "solid 1px rgba(0,0,0,.05)"
+      paperStyle.borderRight = "solid 1px rgba(0,0,0,.05)"
+    } else {
+      paperStyle.borderLeft = "none"
+      paperStyle.borderRight = "none"
+    }
     return (
-      <Paper
-        className={postClass}
-        style={paperStyle}
-        zDepth={0}
-      >
-        <Link to={postLink} className="posts-item-title-link">
-          <div className="posts-item-content">
-            <div className="posts-item-body">
-              <h3 className="posts-item-title">
-                {post.unlisted && "[Unlisted]"} {post.title}
-              </h3>
-              {this.renderPostFeeds()}
+      <div>
+        <Paper
+          className={postClass}
+          style={paperStyle}
+          zDepth={0}
+        >
+          <Link to={postLink} className="posts-item-title-link">
+            <div className="posts-item-content">
+              <div className="posts-item-body">
+                <h3 className="posts-item-title">
+                  {post.unlisted && "[Unlisted]"} {post.title}
+                </h3>
+                {this.renderPostFeeds()}
 
-              <object><div className="posts-item-meta">
-                <Components.CategoryDisplay post={post} />
-                {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
-                {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
-                <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
-                {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
-                {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
-                {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
-              </div></object>
-              <div className="posts-item-summary">
-                {post.url ? <span>This is a linkpost for {post.url}.</span> : post.excerpt}
+                <object><div className="posts-item-meta">
+                  <Components.CategoryDisplay post={post} />
+                  {post.postedAt ? <div className="posts-item-date"> {moment(new Date(post.postedAt)).fromNow()} </div> : null}
+                  {post.user ? <div className="posts-item-user"> {post.user.displayName} </div> : null}
+                  <div className="posts-item-vote"> <Components.Vote collection={Posts} document={post} currentUser={this.props.currentUser}/> </div>
+                  {inlineCommentCount && <div className="posts-item-comments"> {commentCount} comments </div>}
+                  {Posts.options.mutations.edit.check(this.props.currentUser, post) ? this.renderActions() : null}
+                  {this.props.currentUser && this.props.currentUser.isAdmin ? <div className="posts-item-admin"><Components.PostsStats post={post} /></div> : null}
+                </div></object>
+                <div className="posts-item-summary">
+                  {post.url ? <span>This is a linkpost for {post.url}.</span> : post.excerpt}
+                </div>
+              </div>
+
+            </div>
+          </Link>
+          <div className="posts-item-comments">
+            <object>
+              { (!read || !newComments) ?
+                <Link to={Posts.getPageUrl(post) + "#comments"}>
+                  { renderCommentsButton() }
+                </Link>
+              :
+              <div onTouchTap={this.toggleNewComments} >
+                { renderCommentsButton() }
+              </div>
+              }
+
+            </object>
+          </div>
+          { this.state.showNewComments &&
+            <div className="posts-item-new-comments-section">
+              <Components.PostsItemNewCommentsWrapper
+                currentUser={this.props.currentUser}
+                terms={{view:"postCommentsUnread", postId:this.props.post._id, lastVisitedAt:this.props.post.lastVisitedAt}}
+                post={this.props.post}
+              />
+              <div className="post-item-new-comments-actions">
+                <span className="posts-item-mark-as-read">
+                  Mark as Read
+                </span>
               </div>
             </div>
-            <div className="posts-item-comments">
-              <object><Link to={Posts.getPageUrl(post) + "#comments"}>
-                <Badge
-                  className="posts-item-comment-count"
-                  badgeContent={post.commentCount || 0}
-                  secondary={true}
-                  badgeStyle={commentCountBadgeStyle}
-                >
-                  <IconButton
-                    iconStyle={commentCountIconStyle}
-                    tooltip={<div className={classNames("posts-item-tooltip-text", {"read": read, "newComments": newComments})}>
-                      <span className="visit-indicator">{tooltipText1}</span><br/><span className="comment-indicator">{tooltipText2}</span>
-                    </div>}
-                  >
-                  <CommentIcon />
-                </IconButton>
-              </Badge>
-            </Link></object>
-          </div>
-        </div>
-      </Link>
-    </Paper>
+          }
+        </Paper>
+
+    </div>
     )
   }
 }
@@ -153,4 +197,9 @@ PostsItem.propTypes = {
   terms: PropTypes.object,
 };
 
-replaceComponent('PostsItem', PostsItem, withCurrentUser, muiThemeable());
+const mutationOptions = {
+  name: 'increasePostViewCount',
+  args: {postId: 'String'},
+};
+
+replaceComponent('PostsItem', PostsItem, withCurrentUser, withMutation(mutationOptions), muiThemeable());

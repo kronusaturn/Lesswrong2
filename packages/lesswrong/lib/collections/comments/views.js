@@ -44,3 +44,10 @@ Comments.addView("recentComments", function (terms) {
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
+
+Comments.addView("postCommentsUnread", function (terms) {
+  return {
+    selector: { postId: terms.postId, deleted: {$ne:true}, postedAt: { $gt: new Date(terms.lastVisitedAt) }},
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+  };
+});
