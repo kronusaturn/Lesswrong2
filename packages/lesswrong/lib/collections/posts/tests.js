@@ -20,16 +20,4 @@ describe('PostsEdit', async () => {
 
     return response.should.be.rejectedWith(expectedError);
   });
-  it('should return data if a user is provided', async () => {
-    const query = `
-      mutation CommentsNew {
-        CommentsNew(document:{content:{}}){
-          body
-        }
-      }
-    `;
-    const response = runQuery(query, {})
-    const expectedOutput = { data: { CommentsNew: { body: null } } }
-    return response.should.eventually.deep.equal(expectedOutput);
-  });
 });
