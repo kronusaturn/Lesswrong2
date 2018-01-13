@@ -72,6 +72,7 @@ extendFragment('UsersCurrent', `
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
+  lastNotificationsCheck
 `);
 
 registerFragment(`
