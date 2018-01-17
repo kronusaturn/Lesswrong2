@@ -154,7 +154,7 @@ class PostsViews extends Component {
           </div>
         ))}
         {this.state.expanded ?
-          <div>
+          <span>
             {expandedViews.map(view => (
               <div
                 key={view}
@@ -177,7 +177,7 @@ class PostsViews extends Component {
                 Daily { this.renderMenu(viewNames["daily"])}
               </span>
             </Link>}
-          </div> : <div>
+          </span> : <div>
             <a style={ChipStyle} className="view-chip more"
               onClick={() => this.setState({expanded: true})}>
               ...
