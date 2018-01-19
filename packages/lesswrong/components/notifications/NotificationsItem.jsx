@@ -22,7 +22,6 @@ class NotificationsItem extends Component {
         onTouchTap={() => this.setState({clicked: true})}
         key={notification._id}
         primaryText={notification.message}
-        currentUser={this.props.currentUser}
         style={{backgroundColor: (notification.createdAt < lastNotificationsCheck || this.state.clicked) ? 'rgba(0,0,0,0.04)' : 'inherit', fontFamily: "freight-sans-pro, sans-serif", fontSize: "1.1rem", lineHeight: "1.5rem"}}
       />
     )

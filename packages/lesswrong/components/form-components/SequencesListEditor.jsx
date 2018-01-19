@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
 import { registerComponent, Components, withCurrentUser } from 'meteor/vulcan:core';
 import IconButton from 'material-ui/IconButton';
@@ -98,8 +99,8 @@ class SequencesListEditor extends Component {
 //
 
 SequencesListEditor.contextTypes = {
-  addToAutofilledValues: React.PropTypes.func,
-  addToSuccessForm: React.PropTypes.func,
+  addToAutofilledValues: PropTypes.func,
+  addToSuccessForm: PropTypes.func,
 };
 
 registerComponent("SequencesListEditor", SequencesListEditor, withCurrentUser);

@@ -1,9 +1,9 @@
 import { addCallback, getActions } from 'meteor/vulcan:lib';
 
 /*
-  
-  Core callbacks 
-  
+
+  Core callbacks
+
 */
 
 /**
@@ -12,10 +12,11 @@ import { addCallback, getActions } from 'meteor/vulcan:lib';
  * @param {Object} Redux store reference instantiated on the current connected client
  * @param {Object} Apollo Client reference instantiated on the current connected client
  */
-function RouterClearMessages(unusedItem, nextRoute, store, apolloClient) {
-  store.dispatch(getActions().messages.clearSeen());
-  
-  return unusedItem;
-}
-
-addCallback('router.onUpdate', RouterClearMessages);
+// LESSWRONG: Removed because of error messages. Not sure why it was breaking. 
+// function RouterClearMessages(unusedItem, nextRoute, store, apolloClient) {
+//   // store.dispatch(getActions().messages.clearSeen());
+//
+//   // return unusedItem;
+// }
+//
+// // addCallback('router.onUpdate', RouterClearMessages);

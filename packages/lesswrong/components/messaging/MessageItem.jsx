@@ -4,7 +4,8 @@ Display of a single message in the Conversation Wrapper
 
 */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Media } from 'react-bootstrap';
 import { convertFromRaw } from 'draft-js';
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';

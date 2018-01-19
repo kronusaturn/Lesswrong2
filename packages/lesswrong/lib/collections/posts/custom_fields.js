@@ -36,12 +36,12 @@ Posts.addField([
   /**
     Categories (Overwriting original schema)
   */
-  {
-    fieldName: "categories",
-    fieldSchema: {
-      hidden: true,
-    }
-  },
+  // {
+  //   fieldName: "categories",
+  //   fieldSchema: {
+  //     hidden: true,
+  //   }
+  // },
 
 
   /**
