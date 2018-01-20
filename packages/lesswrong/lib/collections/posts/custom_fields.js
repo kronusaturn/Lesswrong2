@@ -33,15 +33,17 @@ Posts.addField([
       control: 'EditTitle',
     },
   },
+
   /**
-    Categories (Overwriting original schema)
+    categoriesIds: Change original Vulcan field to hidden
   */
-  // {
-  //   fieldName: "categories",
-  //   fieldSchema: {
-  //     hidden: true,
-  //   }
-  // },
+  {
+    fieldName: 'categoriesIds',
+    fieldSchema: {
+      type: Array,
+      hidden: true,
+    }
+  },
 
 
   /**
